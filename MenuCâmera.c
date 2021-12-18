@@ -1,7 +1,12 @@
 #include "raylib.h"
 
-// Types and Structures Definition
-typedef enum GameScreen {TITLE, GAMEPLAY} GameScreen;
+typedef struct Player
+{
+    Vector2 position;
+    Vector2 speed;
+} Player;
+
+typedef enum GameScreen {TITLE, GAMEPLAY, CREDITS} GameScreen;
 
 const int screenWidth = 800;
 const int screenHeight = 450;
@@ -20,7 +25,7 @@ int CheckButton(Vector2 mousePoint, Rectangle recButton, Sound clickSound) {
 
 int main(void)
 {
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic screen manager");
+    InitWindow(screenWidth, screenHeight, "MenuCamera");
     InitAudioDevice();
 
     GameScreen currentScreen = TITLE;
@@ -35,9 +40,10 @@ int main(void)
     background.height = screenHeight;
     background.width = screenWidth;
 
-    Rectangle player = { 420, 245, 40, 40 };
+    Player player;
+    player.position = (Vector2) {350.0f, 250.0f};
     Camera2D camera = { 0 };
-    camera.target = (Vector2) {player.x + 20, player.y + 20};
+    camera.target = (Vector2) {player.position.x + 20, player.position.y + 20};
     camera.offset = (Vector2){ screenWidth/2.0f, screenHeight/2.0f };
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
@@ -52,12 +58,18 @@ int main(void)
     
     while (!WindowShouldClose())
     {
-        if (IsKeyDown(KEY_DOWN)) player.y += 2;
-        if (IsKeyDown(KEY_UP)) player.y -= 2;
-        if (IsKeyDown(KEY_LEFT)) player.x -= 2;
-        if (IsKeyDown(KEY_RIGHT)) player.x += 2;
+        if (IsKeyDown(KEY_DOWN)) player.position.y += 2;
+        if (IsKeyDown(KEY_UP)) player.position.y -= 2;
+        if (IsKeyDown(KEY_LEFT)) player.position.x -= 2;
+        if (IsKeyDown(KEY_RIGHT)) player.position.x += 2;
 
-        playerRect = (Rectangle) {player.x - 20, player.y - 20, 40, 40};
+        //limitar movimentação do player
+        if (player.position.x < -50) player.position.x = -50;
+        if (player.position.x > 850) player.position.x = 850;
+        if (player.position.y < -50) player.position.y = -50;
+        if (player.position.y > 500) player.position.y = 500;
+
+        playerRect = (Rectangle) {player.position.x - 20, player.position.y - 20, 40, 40};
 
         mousePoint = GetMousePosition();
         scrollTitleScreen -= velScroll;
@@ -72,7 +84,7 @@ int main(void)
 
             case GAMEPLAY:
             {
-                camera.target = (Vector2) {player.x, player.y};
+                camera.target = (Vector2) {player.position.x, player.position.y};
                 camera.zoom += ((float)GetMouseWheelMove()*0.05f);
 
                 if (camera.zoom > 3.0f) camera.zoom = 3.0f;

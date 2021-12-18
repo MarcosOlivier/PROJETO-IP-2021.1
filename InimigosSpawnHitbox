@@ -1,0 +1,79 @@
+#include "raylib.h"
+
+typedef struct Inimigo{
+    Rectangle hitbox;        //hitbox do inimigo
+    bool vivo;               //Saber o estado do inimigo (vivo ou morto), precisamos do codigo da BALA. inimigo[i].vivo = vivo. !inimigo[i].vivo = morto;
+    Color cor;               //Cor do inimigo (Cor de fundo para ficar invisivel)(hitbox)
+} Inimigo;
+
+Inimigo inimigo[5];
+
+int main(){
+    const int screenWidth = 1920;
+    const int screenLength = 1080;
+    int cont = 0;
+    
+    InitWindow(screenWidth, screenLength, "Bola");
+    SetTargetFPS(60);
+    for(int i = 0; i < 5; i++){
+        inimigo[i].hitbox.x = GetRandomValue(0,1920); 
+        inimigo[i].hitbox.y = GetRandomValue(0,1080);
+        inimigo[i].hitbox.width = 20;
+        inimigo[i].hitbox.height = 20;
+        inimigo[i].vivo = true;
+        inimigo[i].cor = RED;
+    }
+    
+    while (!WindowShouldClose())    
+    {
+       int playerx = GetMouseX();
+       int playery = GetMouseY();
+        
+        BeginDrawing();
+
+            ClearBackground(BLACK);
+    
+            DrawCircle(playerx,playery,10,RED); //Botei as coordenadas do mouse por enquanto que não tem o sistema de movimentaçao polida
+
+            for(int i = 0; i < 5; i++){
+                if ((inimigo[i].vivo)){
+                    DrawRectangleRec(inimigo[i].hitbox, inimigo[i].cor); //Desenha 5 quadrados em localizaçoes aleatorias, a ideia é deixar os quadrados invisiveis e
+                }                                                        //botar a sprite do inimigo em cima. Preciso de ajuda pra colocar delay nos spawns se alguem souber
+            
+            }
+            for(int i = 0; i < 5; i++){
+                if (inimigo[i].vivo){
+                    if(playerx > inimigo[i].hitbox.x)
+                        inimigo[i].hitbox.x += 1;
+                    if(playerx < inimigo[i].hitbox.x)
+                        inimigo[i].hitbox.x -= 1; // O 1 pode ser alterado pra mudar a velocidade dos inimigos
+                    if(playery > inimigo[i].hitbox.y)
+                        inimigo[i].hitbox.y += 1;
+                    if(playery < inimigo[i].hitbox.y)
+                        inimigo[i].hitbox.y -= 1;
+                }
+                if (cont == 0){
+                    if (((inimigo[i].hitbox.x > playerx) && (inimigo[i].hitbox.y > playery)))
+                        if ((inimigo[i].hitbox.x - playerx < 20) && (inimigo[i].hitbox.y - playery < 20)){
+                            cont++;}
+                    if ((inimigo[i].hitbox.x > playerx) && (inimigo[i].hitbox.y < playery)) 
+                        if ((inimigo[i].hitbox.x - playerx < 20) && (playery - inimigo[i].hitbox.y < 20)){
+                            cont++;}
+                    if ((inimigo[i].hitbox.x < playerx) && (inimigo[i].hitbox.y > playery))                          //Checar a colisão entre inimigos e coordenada do player
+                        if ((playerx - inimigo[i].hitbox.x < 20) && (inimigo[i].hitbox.y - playery < 20)){
+                            cont++;}
+                    if ((inimigo[i].hitbox.x < playerx) && (inimigo[i].hitbox.y < playery))
+                        if ((playerx - inimigo[i].hitbox.x < 20) && (playery - inimigo[i].hitbox.y < 20)){
+                            cont++;}}
+                else
+                    DrawText("Game Over",100,100,100,RED); //placeholder tela de game over tentar novamente.
+                    
+            }
+        EndDrawing();
+
+    }
+
+    CloseWindow();
+
+    return 0;
+}

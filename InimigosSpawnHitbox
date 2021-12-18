@@ -8,6 +8,12 @@ typedef struct Inimigo{
 
 Inimigo inimigo[5];
 
+typedef struct Mouse{
+    Rectangle hitbox;
+} Mouse;
+
+Mouse mouse;
+
 int main(){
     const int screenWidth = 1920;
     const int screenLength = 1080;
@@ -18,22 +24,25 @@ int main(){
     for(int i = 0; i < 5; i++){
         inimigo[i].hitbox.x = GetRandomValue(0,1920); 
         inimigo[i].hitbox.y = GetRandomValue(0,1080);
-        inimigo[i].hitbox.width = 20;
-        inimigo[i].hitbox.height = 20;
+        inimigo[i].hitbox.width = 40;
+        inimigo[i].hitbox.height = 40;
         inimigo[i].vivo = true;
         inimigo[i].cor = RED;
     }
     
+    mouse.hitbox.width = 40;
+    mouse.hitbox.height = 40;
+    
     while (!WindowShouldClose())    
     {
-       int playerx = GetMouseX();
-       int playery = GetMouseY();
+        mouse.hitbox.x = GetMouseX();
+        mouse.hitbox.y = GetMouseY();
         
         BeginDrawing();
 
             ClearBackground(BLACK);
     
-            DrawCircle(playerx,playery,10,RED); //Botei as coordenadas do mouse por enquanto que não tem o sistema de movimentaçao polida
+            DrawRectangle(mouse.hitbox.x,mouse.hitbox.y,40,40,BLUE); //Botei as coordenadas do mouse por enquanto que não tem o sistema de movimentaçao polida
 
             for(int i = 0; i < 5; i++){
                 if ((inimigo[i].vivo)){
@@ -43,32 +52,22 @@ int main(){
             }
             for(int i = 0; i < 5; i++){
                 if (inimigo[i].vivo){
-                    if(playerx > inimigo[i].hitbox.x)
+                    if(mouse.hitbox.x > inimigo[i].hitbox.x)
                         inimigo[i].hitbox.x += 1;
-                    if(playerx < inimigo[i].hitbox.x)
+                    if(mouse.hitbox.x < inimigo[i].hitbox.x)
                         inimigo[i].hitbox.x -= 1; // O 1 pode ser alterado pra mudar a velocidade dos inimigos
-                    if(playery > inimigo[i].hitbox.y)
+                    if(mouse.hitbox.y > inimigo[i].hitbox.y)
                         inimigo[i].hitbox.y += 1;
-                    if(playery < inimigo[i].hitbox.y)
+                    if(mouse.hitbox.y < inimigo[i].hitbox.y)
                         inimigo[i].hitbox.y -= 1;
                 }
-                if (cont == 0){
-                    if (((inimigo[i].hitbox.x > playerx) && (inimigo[i].hitbox.y > playery)))
-                        if ((inimigo[i].hitbox.x - playerx < 20) && (inimigo[i].hitbox.y - playery < 20)){
-                            cont++;}
-                    if ((inimigo[i].hitbox.x > playerx) && (inimigo[i].hitbox.y < playery)) 
-                        if ((inimigo[i].hitbox.x - playerx < 20) && (playery - inimigo[i].hitbox.y < 20)){
-                            cont++;}
-                    if ((inimigo[i].hitbox.x < playerx) && (inimigo[i].hitbox.y > playery))                          //Checar a colisão entre inimigos e coordenada do player
-                        if ((playerx - inimigo[i].hitbox.x < 20) && (inimigo[i].hitbox.y - playery < 20)){
-                            cont++;}
-                    if ((inimigo[i].hitbox.x < playerx) && (inimigo[i].hitbox.y < playery))
-                        if ((playerx - inimigo[i].hitbox.x < 20) && (playery - inimigo[i].hitbox.y < 20)){
-                            cont++;}}
-                else
+                if ((CheckCollisionRecs(mouse.hitbox,inimigo[i].hitbox)) && (cont == 0))
+                    cont++;
+                if (cont > 0)
                     DrawText("Game Over",100,100,100,RED); //placeholder tela de game over tentar novamente.
                     
             }
+            
         EndDrawing();
 
     }

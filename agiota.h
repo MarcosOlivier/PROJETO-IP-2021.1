@@ -9,14 +9,10 @@ typedef struct Inimigo{
     Color cor;              //Cor da hitbox do inimigo (BLANK para ficar transparente)(hitbox)
 } Inimigo;
 
-Inimigo inimigo[5];
-
 typedef struct Mouse{
     Rectangle hitbox;       //Hitbox do inimigo
     Color cor;              //Cor da hitbox do player (BLANK para ficar transparente)
-} Mouse;
-
-Mouse mouse;                //Struct do mouse (Podia ser substituida por uma struct rectangle pro codigo ficar mais polido)
+} Mouse;               //Struct do mouse (Podia ser substituida por uma struct rectangle pro codigo ficar mais polido)
 
 typedef struct moeda{
     Rectangle hitbox;       //Hitbox da moeda

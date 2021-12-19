@@ -1,0 +1,342 @@
+#include "raylib.h"
+
+#define MAX_FRAME_SPEED 15
+#define MIN_FRAME_SPEED 1
+#define NUM_SHOOTS 99999
+
+#define LIMITE_ESQUERDA -2400
+#define LIMITE_DIREITA 4800
+#define LIMITE_CIMA -1350
+#define LIMITE_BAIXO 2700
+#define LIMITE_ZOOM_MAX 1.5f
+#define LIMITE_ZOOM_MIN 0.3f
+
+typedef enum ShootDirection {CIMA, BAIXO, DIREITA, ESQUERDA} ShootDirection;
+
+typedef struct Shoot
+{
+    Rectangle rect;
+    Vector2 speed;
+    bool active;
+    Color color;
+    ShootDirection direction;
+
+} Shoot;
+
+typedef struct Player  
+{
+    Vector2 position;
+    Vector2 speed;
+    Rectangle hitbox;
+} Player;
+
+    const int screenWidth = 800;  //DIZ O TAMANHO DA JANELA
+    const int screenHeight = 450;
+
+    static Shoot shoot[NUM_SHOOTS];
+    static Player player;
+
+    static int shootRate;
+    int shootCounter = 0;
+    ShootDirection shootDirection = DIREITA;
+
+
+typedef struct Inimigo{
+    Rectangle hitbox;       //hitbox do inimigo
+    bool vivo;              //Saber o estado do inimigo (vivo ou morto), precisamos do codigo da BALA. inimigo[i].vivo = vivo. !inimigo[i].vivo = morto;
+    Color cor;              //Cor da hitbox do inimigo (BLANK para ficar transparente)(hitbox)
+} Inimigo;
+
+Inimigo inimigo[5];
+
+typedef struct moeda{
+    Rectangle hitbox;       //Hitbox da moeda
+    bool vivo;              //Saber se a moeda existe
+    Color cor;              //Cor da hitbox da moeda (BLANK para ficar transparente)
+    Vector2 positionmoeda;
+} Moeda;
+
+Moeda moeda[20];
+
+
+int main(void){
+    int currentframe = 0;
+
+    int framesCounter = 0;
+    int frameSpeed = 15;
+    
+    int contmoedas=0; //relaciona o indice dos 5 inimigos com as moedas
+    int dinheiros=0; // qtd de dinheiro do jogador  (pontuação)
+    int currentframemoedas = 0;  //frame inicial da moeda
+    int framesCountermoedas = 0; //contador de frames da moeda
+    int frameSpeedmoedas = 15;   //velocidade de frames da moeda
+    
+    
+    
+
+    player.hitbox.x = 350.0f;  //INICIALIZA AS CARACTERISTICAS DO PERSONAGEM
+    player.hitbox.y = 250.0f;
+    player.hitbox.width = 20;
+    player.hitbox.height = 20;
+    player.speed.x = 7;
+    player.speed.y = 7;
+
+     for (int i = 0; i < NUM_SHOOTS; i++)  //INICIALIZA AS CARACTERISTICAS DA BALA
+    {
+        shoot[i].rect.x = player.hitbox.x;
+        shoot[i].rect.y = player.hitbox.y;
+        shoot[i].rect.width = 10;
+        shoot[i].rect.height = 10;
+        shoot[i].speed.x = 30;
+        shoot[i].speed.y = 30;
+        shoot[i].active = false;
+        shoot[i].color = MAROON;
+    }
+    
+    for(int i = 0; i < 5; i++){                         //Inicializando os inimigos
+        inimigo[i].hitbox.x = GetRandomValue(0,1080);   //Em posiçoes aleatorias
+        inimigo[i].hitbox.y = GetRandomValue(0,720);
+        inimigo[i].hitbox.width = 20;                   //Largura e altura da hitbox dos inimigos
+        inimigo[i].hitbox.height = 20;
+        inimigo[i].vivo = true;                         //Estado dos inimigos (Vivo)
+        inimigo[i].cor = RED;                           //Cor da hitbox dos inimigos(BLANK para ficar transparente)
+    }
+    for (int i = 0; i < 20; i++){                    // inicializando moedas
+        moeda[i].hitbox.width = 20;                   //Largura e altura da hitbox das moedas
+        moeda[i].hitbox.height = 25;
+        moeda[i].cor = GOLD;
+        moeda[i].vivo = false;
+    }
+    
+    
+
+    int direction;
+    
+    InitWindow(screenWidth, screenHeight, "making a character move ");  //INICIALIZA A TELA
+
+    Texture2D character = LoadTexture("resourses\\SpriteSheetRight.png");  //CARREGA A TEXTURA DO PERSONAGEM
+    character.width /= 3;
+    character.height /= 3;
+    Texture2D background = LoadTexture("resourses\\cenario.png");
+    background.width *= 2;
+    Rectangle frameRec = {0.0f, 0.0f, (float)character.width/4 ,(float)character.height};  //RECORTA A TEXTURA
+    Rectangle frameRecXInverted = {0.0f, 0.0f, (float)-character.width/4 ,(float)character.height}; //ESPELHA A TEXTURA
+    
+    Texture2D moedateste = LoadTexture("resourses\\moedateste.png");  // CARREGA A TEXTURA DA MOEDA
+    Rectangle frameRecmoeda = {0.0f, 0.0f, (float)moedateste.width/6 ,(float)moedateste.height}; //RECORTA O PNG DA TEXTURA  EM RETANGULOS(6 frames na animacao)
+    
+    
+     SetTargetFPS(60);
+
+     while(!WindowShouldClose()){ //DETECTA SE A TELA FOI FECHADA OU SE APERTARAM ESC
+         framesCounter ++;
+         framesCountermoedas ++; //aumentar frames da moeda
+
+            
+            player.position.x = player.hitbox.x -15;
+            player.position.y = player.hitbox.y -5;
+            DrawRectangleRec(player.hitbox,GOLD);
+            
+        if(IsKeyDown(KEY_RIGHT)){  //MOVIMENTA O PERSONAGEM PRA DIREITA
+            shootDirection = DIREITA;
+            direction = 1;
+            player.hitbox.x += player.speed.x;
+            if (player.hitbox.x >= LIMITE_DIREITA) player.hitbox.x = LIMITE_DIREITA;
+            if(framesCounter >= (60/frameSpeed)){
+                framesCounter = 0;
+                currentframe++;
+                if(currentframe>4)
+                currentframe=0;
+                frameRec.x = (float)currentframe*(float)character.width/4;           
+            }   
+        }
+        if(IsKeyDown(KEY_LEFT)){  //MOVIMENTA O PERSONAGEM PRA ESQUERDA
+            shootDirection = ESQUERDA;
+            direction = 0;
+            player.hitbox.x -= player.speed.x;
+            if (player.hitbox.x <= LIMITE_ESQUERDA) player.hitbox.x = LIMITE_ESQUERDA;
+            if(framesCounter >= (60/frameSpeed)){
+                framesCounter = 0;
+                currentframe++;
+                if(currentframe>4)
+                currentframe=0;
+
+                frameRecXInverted.x = (float)currentframe*(float)character.width/4;           
+            }   
+        }
+        if(IsKeyDown(KEY_UP)){  //MOVIMENTA O PERSONAGEM PRA CIMA
+            shootDirection = CIMA;
+            player.hitbox.y -= player.speed.y;
+            if (player.hitbox.y <= LIMITE_CIMA) player.hitbox.y = LIMITE_CIMA;
+            if(framesCounter >= (60/frameSpeed)){
+                framesCounter = 0;
+                currentframe++;
+                if(currentframe>4)
+                currentframe=0;
+                if(shootDirection == 0)
+                    frameRecXInverted.x = (float)currentframe*(float)character.width/4;   
+                else
+                    frameRec.x = (float)currentframe*(float)character.width/4;       
+            }   
+        }
+        if(IsKeyDown(KEY_DOWN)){ //MOVIMENTA O PERSONAGEM PRA BAIXO
+            shootDirection = BAIXO;
+            player.hitbox.y  += player.speed.y;
+            if (player.hitbox.y >= LIMITE_BAIXO) player.hitbox.y = LIMITE_BAIXO;
+            if(framesCounter >= (60/frameSpeed)){
+                framesCounter = 0;
+                currentframe++;
+                if(currentframe>4)
+                currentframe=0;
+                if(direction == 0)
+                    frameRecXInverted.x = (float)currentframe*(float)character.width/4;   
+                else
+                    frameRec.x = (float)currentframe*(float)character.width/4;       
+            }
+    }
+      if (IsKeyDown(KEY_SPACE))
+    {
+
+        shootRate += 5;
+        shootCounter++;
+        for (int i = 0; i < NUM_SHOOTS; i++)
+        {
+            if (!shoot[i].active && shootRate % 40 == 0) //LIMITA A QUANTIDADE DE BALAS/SEG
+            {
+                shoot[i].rect.x = player.hitbox.x -5 ; //SPAWNA A BALA NESSAS COORDENADAS 
+                shoot[i].rect.y = player.hitbox.y  ;
+                shoot[i].active = true;
+                shoot[i].direction = shootDirection;
+                break;
+            }
+        }
+    }
+
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+
+
+        
+                DrawTexture(background, -50, -50, WHITE);
+            
+
+        for (int i = 0; i < NUM_SHOOTS; i++){
+            if (shoot[i].active){
+
+                //MOVIMENTA A BALA 
+
+                switch (shoot[i].direction)
+                {
+                case CIMA:
+                    shoot[i].rect.y -= shoot[i].speed.y;
+                    break;
+                
+                case BAIXO:
+                    shoot[i].rect.y += shoot[i].speed.y;
+                    break;
+
+                case DIREITA:
+                    shoot[i].rect.x += shoot[i].speed.x;
+                    break;
+
+                case ESQUERDA:
+                    shoot[i].rect.x -= shoot[i].speed.x;
+                    break;
+
+                default:
+                    break;
+                }
+
+                if (shoot[i].rect.x >= LIMITE_DIREITA || shoot[i].rect.x <= LIMITE_ESQUERDA ||shoot[i].rect.y >= LIMITE_BAIXO || shoot[i].rect.y <= LIMITE_CIMA){ //EXCLUI A BALA DEPOIS QUE SAI DA TELA
+                    shoot[i].active = false;
+                    shootRate = 0;
+                }
+            }
+         }
+
+        for (int i = 0; i < NUM_SHOOTS; i++){
+        if (shoot[i].active)
+            DrawRectangleRec(shoot[i].rect, shoot[i].color); //DESENHA A BALA
+        }
+
+        if((direction == 0)){
+            DrawTextureRec(character, frameRecXInverted, player.position , RAYWHITE);
+        }
+        else
+            DrawTextureRec(character, frameRec, player.position, RAYWHITE);
+
+        EndMode2D();
+        DrawText(TextFormat("x: %d, y: %d", (int) player.position.x, (int) player.position.y), 50, 400, 20, WHITE);
+        
+        
+        DrawText(TextFormat("Dinheiros = %d",dinheiros),0,0,30,RED);
+        
+        for(int i = 0; i < 5; i++){
+            if ((inimigo[i].vivo)){
+                DrawRectangleRec(inimigo[i].hitbox, inimigo[i].cor); //Desenha 5 quadrados em localizaçoes aleatorias, a ideia é deixar os quadrados invisiveis e
+            }                                                        //botar a sprite do inimigo em cima. Preciso de ajuda pra colocar delay nos spawns se alguem souber
+        }
+        
+        for(int i = 0; i < 5; i++){
+                if (inimigo[i].vivo){ //Aproxima o coordenada da hitbox do inimigo ate a do player
+                    if(player.hitbox.x > inimigo[i].hitbox.x)
+                        inimigo[i].hitbox.x += 1;
+                    if(player.hitbox.x < inimigo[i].hitbox.x)
+                        inimigo[i].hitbox.x -= 1;            // O 1 pode ser alterado pra mudar a velocidade dos inimigos
+                    if(player.hitbox.y > inimigo[i].hitbox.y)
+                        inimigo[i].hitbox.y += 1;
+                    if(player.hitbox.y < inimigo[i].hitbox.y)
+                        inimigo[i].hitbox.y -= 1;
+                }
+                for (int j = 0; j< NUM_SHOOTS; j++){
+                if ((CheckCollisionRecs(shoot[j].rect,inimigo[i].hitbox))){ //colisao com os tiros
+                     moeda[contmoedas].hitbox.x = inimigo[i].hitbox.x ;   
+                     moeda[contmoedas].hitbox.y = inimigo[i].hitbox.y ;  
+                     moeda[contmoedas].vivo = true;                         // coloca a moeda viva quando colidir com o inimigo
+                     moeda[contmoedas].positionmoeda.x =moeda[contmoedas].hitbox.x -5  ; //colocar os sprites na colisão da moeda
+                     moeda[contmoedas].positionmoeda.y =moeda[contmoedas].hitbox.y -25 ;
+                     inimigo[i].hitbox.x += GetRandomValue(-1080,1080);     // prótotipo respawn dos inimigos
+                     inimigo[i].hitbox.y += GetRandomValue(-1080,1080);     // joga os inimigos para longe da tela
+                     contmoedas++;                                          // variavel que relaciona os 5 inimigos com indice das moedas
+            }
+            }
+            }
+        
+        
+            if(framesCountermoedas >= (60/frameSpeedmoedas)){  // VELOCIDADE DO FRAME(QUANTOS FRAMES VÃO PASSAR POR SEGUNDO)
+                framesCountermoedas = 0; //CADA FRAME É UM RETANGULO(PEDAÇO DO PNG)
+                currentframemoedas++;
+                if(currentframemoedas>6){ // QUANDO CHEGAR NO ULTIMO FRAME VOLTA PRO PRIMEIRO(LOOP)
+                frameRecmoeda.x = (float)currentframemoedas*(float)moedateste.width/6;   //ASSOCIA UM NÚMERO A UM RETÂNGULO RECORTADO       
+            }   
+                
+        }
+            
+            for (int i=0; i<20;i++ ){
+            
+                if (moeda[i].vivo){
+                    DrawTextureRec(moedateste, frameRecmoeda, moeda[i].positionmoeda, GOLD);
+    }
+            }
+                    DrawRectangleRec(player.hitbox,RED);
+ 
+            for (int i =0; i<20;i++){      
+                for (int j=0; j<NUM_SHOOTS;j++){
+                if((CheckCollisionRecs(player.hitbox,moeda[i].hitbox)) && moeda[i].vivo) { //checa colisão com moedas vivas
+                    moeda[i].vivo = false; // "mata" a moeda
+                    dinheiros += 10;        // adiciona valor ao score
+                }
+            }
+            }
+            
+            if (dinheiros >= 100) // Alterar quantidade de dinheiro necessário para ganhar
+                    DrawText("Agora vc pode pagar o agiota que só aceita notas de 100",100,100,20,RED); //placeholder tela de ganhar o jogo
+        
+        EndDrawing();
+    }
+        UnloadTexture(character);
+        UnloadTexture(background);
+        UnloadTexture(moedateste); //DESCARREGA A TEXTURA DA MEMÓRIA
+        CloseWindow();
+     return 0;
+}

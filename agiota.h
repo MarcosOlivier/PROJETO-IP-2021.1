@@ -25,3 +25,11 @@ typedef struct Player
     Vector2 position;
     Vector2 speed;
 } Player;
+
+typedef struct Shoot
+{
+    Rectangle rect;
+    Vector2 speed;
+    bool active;
+    Color color;
+} Shoot;

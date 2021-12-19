@@ -49,7 +49,7 @@ int main(){
         mouse.hitbox.y = GetMouseY();
 
         BeginDrawing();
-
+            if(cont == 0){
             ClearBackground(BLACK);
     
             DrawRectangle(mouse.hitbox.x,mouse.hitbox.y,40,40,mouse.cor); //Botei as coordenadas do mouse por enquanto que não tem o sistema de movimentaçao polida
@@ -73,11 +73,12 @@ int main(){
                 }
                 if ((CheckCollisionRecs(mouse.hitbox,inimigo[i].hitbox)) && (cont == 0)) //Checa colisao entre dois retangulos (Inimigo e player)
                     cont++; //Caso a colisao ocorra a tela de game over aparece
-                if (cont > 0)
-                    DrawText("Game Over",100,100,100,RED); //placeholder tela de game over tentar novamente.
-                    
-            }
-            
+        
+            }}
+        
+            else
+                DrawText("Game Over",100,100,100,RED); //placeholder tela de game over tentar novamente.
+
         EndDrawing();
 
     }

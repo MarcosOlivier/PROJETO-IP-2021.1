@@ -22,10 +22,10 @@ int main(void){
 
     InitWindow(screenWidth, screenHeight, "making a character move ");
     Vector2 position = {characterX, characterY};
-    Texture2D character = LoadTexture("texturas/SpriteSheetRight.png");
+    Texture2D character = LoadTexture("texturas/SpriteSheetRight.png");  // CARREGA A TEXTURA
 
-    Rectangle frameRec = {0.0f, 0.0f, (float)character.width/4 ,(float)character.height};
-    Rectangle frameRecXInverted = {0.0f, 0.0f, (float)-character.width/4 ,(float)character.height};
+    Rectangle frameRec = {0.0f, 0.0f, (float)character.width/4 ,(float)character.height}; //RECORTA O PNG DA TEXTURA  EM RETANGULOS(/4 PORQUE SÃO 4 FRAMES DE ANIMACAO NO MEU EXEMPLO)
+    Rectangle frameRecXInverted = {0.0f, 0.0f, (float)-character.width/4 ,(float)character.height}; // ´´ E ESPELHA O RESULTADO  NO EIXO X PARA DAR IMPRESSÃO QUE ESTÁ ANDANDO P ESQUERDA
 
      SetTargetFPS(60);
 
@@ -35,12 +35,12 @@ int main(void){
         if(IsKeyDown(KEY_RIGHT)){
             direction = 1;
             position.x += moveX;
-            if(framesCounter >= (60/frameSpeed)){
-                framesCounter = 0;
+            if(framesCounter >= (60/frameSpeed)){  // VELOCIDADE DO FRAME(QUANTOS FRAMES VÃO PASSAR POR SEGUNDO)
+                framesCounter = 0; //CADA FRAME É UM RETANGULO(PEDAÇO DO PNG)
                 currentframe++;
-                if(currentframe>4)
+                if(currentframe>4) // QUANDO CHEGAR NO ULTIMO FRAME VOLTA PRO PRIMEIRO(LOOP)
                 currentframe=0;
-                frameRec.x = (float)currentframe*(float)character.width/4;           
+                frameRec.x = (float)currentframe*(float)character.width/4;   //ASSOCIA UM NÚMERO A UM RETÂNGULO RECORTADO       
             }   
         }
         if(IsKeyDown(KEY_LEFT)){
@@ -73,7 +73,7 @@ int main(void){
             direction = direction;
             position.y += moveY;
             if(framesCounter >= (60/frameSpeed)){
-                framesCounter = 0;
+                framesCounter = 0; //
                 currentframe++;
                 if(currentframe>4)
                 currentframe=0;
@@ -88,14 +88,14 @@ int main(void){
         ClearBackground(RAYWHITE);
         
         if((direction == 0)){
-            DrawTextureRec(character, frameRecXInverted, position, RAYWHITE);
+            DrawTextureRec(character, frameRecXInverted, position, RAYWHITE); // DESENHA A TEXTURA ESPELHADA
         }
         else
-            DrawTextureRec(character, frameRec, position, RAYWHITE);
+            DrawTextureRec(character, frameRec, position, RAYWHITE); // DESENHA A TEXTURA NORMAL
        
         EndDrawing();
      }
-        UnloadTexture(character);
+        UnloadTexture(character); //DESCARREGA A TEXTURA DA MEMÓRIA
         
         CloseWindow();
      return 0;

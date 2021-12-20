@@ -121,7 +121,7 @@ int main(void) {
         inimigo[i].hitbox.x = GetRandomValue(0,1080);   //Em posiçoes aleatorias
         inimigo[i].hitbox.y = GetRandomValue(0,720);
         inimigo[i].hitbox.width = 30;                   //Largura e altura da hitbox dos inimigos
-        inimigo[i].hitbox.height = 30;
+        inimigo[i].hitbox.height = 90;
         inimigo[i].vivo = true;                         //Estado dos inimigos (Vivo)
         inimigo[i].cor = RED;                          //Cor da hitbox dos inimigos(BLANK para ficar transparente)
     }

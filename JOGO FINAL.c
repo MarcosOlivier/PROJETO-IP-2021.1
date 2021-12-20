@@ -328,6 +328,8 @@ int main(void) {
                     DrawTexture(backgroundTitle, scrollTitleScreen + screenWidth, 0, WHITE);
                     DrawTexture(button, screenWidth/4.0f - button.width/2.0f, screenHeight/4.0f - button.height/2.0f, RAYWHITE);
                     DrawText("PLAY", screenWidth/4.0f + button.width/1.5f, screenHeight/4.0f - button.height/4.0f, button.height/2, BLACK);
+                    DrawText("Movimentação: Setas do teclado", 200, 250, 30, BLACK);
+                    DrawText("Atirar: Espaço", 200, 220, 30, BLACK);
                 } break;
                 case GAMEPLAY:
                 {    

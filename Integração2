@@ -1,0 +1,371 @@
+//os inimigos não morrem com a bala (a colisão não está funcionando) e ainda falta implementar a morte do player ao colidir com o inimigo
+
+#include "raylib.h"
+#include "agiota.h"
+
+#define MAX_FRAME_SPEED 15
+#define MIN_FRAME_SPEED 1
+#define NUM_SHOOTS 99999
+
+#define LIMITE_ESQUERDA -2400
+#define LIMITE_DIREITA 4800
+#define LIMITE_CIMA -1350
+#define LIMITE_BAIXO 2700
+#define LIMITE_ZOOM_MAX 1.5f
+#define LIMITE_ZOOM_MIN 0.3f
+
+Inimigo inimigo[5];
+Moeda moeda[100];
+
+static Shoot shoot[NUM_SHOOTS];
+static Player player;
+
+static int shootRate;
+int shootCounter = 0;
+ShootDirection shootDirection = DIREITA;
+
+//se sim, retorna 1. se não, retorna 0
+int CheckButton(Vector2 mousePoint, Rectangle recButton, Sound clickSound) {
+    
+    if (CheckCollisionPointRec(mousePoint, recButton)) {
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) { 
+            PlaySound(clickSound);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int contmoedas=0; //relaciona o indice dos 5 inimigos com as moedas
+int dinheiros=0; // qtd de dinheiro do jogador  (pontuação)
+
+int main(void) {
+    InitWindow(screenWidth, screenHeight, "fodasefodaseaaaaaaaaaaa");
+    InitAudioDevice();
+
+    int currentframe = 0;
+    int direction; //(esquerda ou direita) serve para definir para onde o character está olhando
+
+    int framesCounter = 0;
+    int frameSpeed = 15;
+
+    //CARREGAR TEXTURAS E SONS
+    Texture2D button = LoadTexture("button.png");
+    Texture2D backgroundTitle = LoadTexture("country-platform-preview.png");
+    Sound clickSound = LoadSound("MenuClick.wav");
+    Texture2D character = LoadTexture("Running.png");
+    Texture2D backgroundGame = LoadTexture("cenario.png");
+    backgroundGame.height = backgroundGame.height/2.0f;
+    backgroundGame.width = backgroundGame.width/2.0f;
+
+    player.position.x = 350.0f;  //INICIALIZA AS CARACTERISTICAS DO PERSONAGEM
+    player.position.y = 250.0f;
+    player.speed.x = 7;
+    player.speed.y = 7;
+    player.rectangle.width = character.width;
+    player.rectangle.height = character.height;
+
+    Camera2D camera = { 0 };     //CARACTERISTICAS DA CAMERA
+    camera.target = (Vector2) {player.position.x + 20, player.position.y + 20};
+    camera.offset = (Vector2) {screenWidth/2.0f, screenHeight/2.0f};
+    camera.rotation = 0.0f;
+    camera.zoom = 1.5f;
+
+    for(int i = 0; i < 5; i++){                         //Inicializando os inimigos
+        inimigo[i].hitbox.x = GetRandomValue(0,1080);   //Em posiçoes aleatorias
+        inimigo[i].hitbox.y = GetRandomValue(0,720);
+        inimigo[i].hitbox.width = 10;                   //Largura e altura da hitbox dos inimigos
+        inimigo[i].hitbox.height = 10;
+        inimigo[i].vivo = true;                         //Estado dos inimigos (Vivo)
+        inimigo[i].cor = RED;                           //Cor da hitbox dos inimigos(BLANK para ficar transparente)
+    }
+    for (int i = 0; i < 100; i++){                    // inicializando moedas
+        moeda[i].hitbox.width = 10;                   //Largura e altura da hitbox das moedas
+        moeda[i].hitbox.height = 10;
+        moeda[i].cor = GOLD;
+        moeda[i].vivo = false;
+    }
+
+    for (int i = 0; i < NUM_SHOOTS; i++)  //INICIALIZA AS CARACTERISTICAS DA BALA
+    {
+        shoot[i].position.x = player.position.x;
+        shoot[i].position.y = player.position.y;
+        shoot[i].speed.x = 10;
+        shoot[i].speed.y = 10;
+        shoot[i].active = false;
+        shoot[i].color = MAROON;
+    }
+
+    GameScreen currentScreen = TITLE;
+
+    SetTargetFPS(60);
+
+    //AJUSTE DE TEXTURAS
+    button.height = button.height/3.0;
+    button.width = button.width/3.0;
+    backgroundTitle.height = screenHeight;
+    backgroundTitle.width = screenWidth;
+    backgroundGame.width = 3*backgroundGame.width;
+    backgroundGame.height = 3*backgroundGame.height;
+
+    //Rectangle Bullet =  {0.0f, 0.0f, (float)bullet.width ,(float)bullet.height};
+
+    Rectangle frameRec = {0.0f, 0.0f, (float)-character.width/8 ,(float)character.height/2};  
+    Rectangle frameRecXInverted = {0.0f, 0.0f, (float)character.width/8 ,(float)character.height/2}; 
+
+    //botao e mouse
+    Vector2 mousePoint = { 0.0f, 0.0f };
+    Rectangle recButtonTitle = {screenWidth/4.0f - button.width/2.0f, screenHeight/4.0f - button.height/2.0f, button.width, button.height};
+    Rectangle recButtonGameplay = {screenWidth - 200, screenHeight - 90, button.width, button.height};
+
+    //scroll do background do menu inicial
+    float scrollTitleScreen = 0.0f;
+    float velScroll = 0.5f;
+    
+    while (!WindowShouldClose())
+    {
+        mousePoint = GetMousePosition();
+
+        player.rectangle.x = player.position.x;
+        player.rectangle.y = player.position.y;
+
+        switch(currentScreen)
+        {
+            case TITLE:
+            {
+                scrollTitleScreen -= velScroll;
+                if (scrollTitleScreen <= -screenWidth) scrollTitleScreen = 0.0f;
+
+               if (CheckButton(mousePoint, recButtonTitle, clickSound)) currentScreen = GAMEPLAY;
+            } break;
+
+            case GAMEPLAY:
+            {
+                if(IsKeyDown(KEY_RIGHT)){  //MOVIMENTA O PERSONAGEM PRA DIREITA
+                shootDirection = DIREITA;
+                direction = 1;
+                player.position.x += player.speed.x;
+                if (player.position.x >= LIMITE_DIREITA) player.position.x = LIMITE_DIREITA;
+                if(framesCounter >= (60/frameSpeed)){
+                    framesCounter = 0;
+                    currentframe++;
+                    if(currentframe>4) currentframe=0;
+                    frameRec.x = (float)currentframe*(float)character.width/8, (float)character.height/2;           
+            }   
+        }
+                if(IsKeyDown(KEY_LEFT)){  //MOVIMENTA O PERSONAGEM PRA ESQUERDA
+                    shootDirection = ESQUERDA;
+                    direction = 0;
+                    player.position.x -= player.speed.x;
+                    if (player.position.x <= LIMITE_ESQUERDA) player.position.x = LIMITE_ESQUERDA;
+                    if(framesCounter >= (60/frameSpeed)){
+                    framesCounter = 0;
+                    currentframe++;
+                    if(currentframe>4)
+                    currentframe=0;
+
+                    frameRecXInverted.x = (float)currentframe*(float)character.width/8, (float)character.height/2;           
+            }   
+        }
+                if(IsKeyDown(KEY_UP)){  //MOVIMENTA O PERSONAGEM PRA CIMA
+                    shootDirection = CIMA;
+                    player.position.y -= player.speed.y;
+                    if (player.position.y <= LIMITE_CIMA) player.position.y = LIMITE_CIMA;
+                    if(framesCounter >= (60/frameSpeed)){
+                        framesCounter = 0;
+                        currentframe++;
+                        if(currentframe>4)
+                        currentframe=0;
+                        if(shootDirection == 0)
+                            frameRecXInverted.x = (float)currentframe*(float)character.width/8, (float)character.height/2;   
+                        else
+                            frameRec.x = (float)currentframe*(float)character.width/8, (float)character.height/2;       
+                    }   
+                }
+                if(IsKeyDown(KEY_DOWN)){ //MOVIMENTA O PERSONAGEM PRA BAIXO
+                    shootDirection = BAIXO;
+                    player.position.y  += player.speed.y;
+                    if (player.position.y >= LIMITE_BAIXO) player.position.y = LIMITE_BAIXO;
+                    if(framesCounter >= (60/frameSpeed)){
+                        framesCounter = 0;
+                        currentframe++;
+                        if(currentframe>4)
+                        currentframe=0;
+                        if(direction == 0)
+                            frameRecXInverted.x = (float)currentframe*(float)character.width/8, (float)character.height/2;   
+                        else
+                            frameRec.x = (float)currentframe*(float)character.width/8, (float)character.height/2;       
+                    }
+            }
+            if (IsKeyDown(KEY_SPACE))
+    {
+
+        shootRate += 5;
+        shootCounter++;
+        for (int i = 0; i < NUM_SHOOTS; i++)
+        {
+            if (!shoot[i].active && shootRate % 40 == 0) //LIMITA A QUANTIDADE DE BALAS/SEG
+            {
+                shoot[i].position.x = player.position.x; //SPAWNA A BALA NESSAS COORDENADAS 
+                shoot[i].position.y = player.position.y;
+                shoot[i].active = true;
+                shoot[i].direction = shootDirection;
+                shoot[i].Hitbox.width = 10;
+                shoot[i].Hitbox.height = 10;
+                
+                break;
+            }
+        }
+    }
+
+                camera.target = (Vector2) {player.position.x, player.position.y};
+                camera.zoom += ((float)GetMouseWheelMove()*0.05f);
+
+                if (camera.zoom > 3.0f) camera.zoom = 3.0f;
+                else if (camera.zoom < 0.1f) camera.zoom = 0.1f;
+
+                if (CheckButton(mousePoint, recButtonGameplay, clickSound)) currentScreen = TITLE;
+            } break;
+            default: break;
+        }
+
+        BeginDrawing();
+
+            ClearBackground(RAYWHITE);
+
+            switch(currentScreen)
+            {
+                case TITLE:
+                {
+                    ClearBackground(RAYWHITE);
+                    DrawTexture(backgroundTitle, scrollTitleScreen, 0, WHITE);
+                    DrawTexture(backgroundTitle, scrollTitleScreen + screenWidth, 0, WHITE);
+                    DrawTexture(button, screenWidth/4.0f - button.width/2.0f, screenHeight/4.0f - button.height/2.0f, WHITE);
+                    DrawText("PLAY", screenWidth/4.0f + button.width/1.5f, screenHeight/4.0f - button.height/4.0f, button.height/2, BLACK);
+                } break;
+                case GAMEPLAY:
+                {    
+                BeginMode2D(camera);
+
+                //desenhando background 9 vezes
+                for (int i = -1; i < 2; i++) {
+                    for (int j = -1; j < 2; j++) {
+                        DrawTexture(backgroundGame, i*backgroundGame.width, j*backgroundGame.height, WHITE);
+                    }
+                } 
+
+                for(int i = 0; i < 5; i++){
+                if ((inimigo[i].vivo)){
+                    DrawRectangleRec(inimigo[i].hitbox, inimigo[i].cor); //Desenha 5 quadrados em localizaçoes aleatorias, a ideia é deixar os quadrados invisiveis e
+                }                                                        //botar a sprite do inimigo em cima. Preciso de ajuda pra colocar delay nos spawns se alguem souber
+            }
+
+            for(int i = 0; i <NUM_SHOOTS; i++){ //colisao bala - inimigo
+                for (int j = 0; j < 5; j++){
+                    if ((CheckCollisionRecs(shoot[i].Hitbox,inimigo[j].hitbox))){ 
+                        moeda[contmoedas].hitbox.x = inimigo[j].hitbox.x -20;  // coloquei o -20 só para o teste, alterar faz a moeda spawna 
+                        moeda[contmoedas].hitbox.y = inimigo[j].hitbox.y -20;  // em diferentes lugares
+                        moeda[contmoedas].position.x = moeda[contmoedas].hitbox.x;
+                        moeda[contmoedas].position.y = moeda[contmoedas].hitbox.y;
+                        moeda[contmoedas].vivo = true;                         // coloca a moeda viva quando colidir com o inimigo
+                        inimigo[j].hitbox.x += GetRandomValue(-1080,1080);     // prótotipo respawn dos inimigos
+                        inimigo[j].hitbox.y += GetRandomValue(-1080,1080);     // joga os inimigos para longe da tela
+                        contmoedas++;                                          // variavel que relaciona os 5 inimigos com indice das moedas
+                    }
+                }
+            }
+
+            for(int i = 0; i < 100; i++){           //desenhando a moeda na tela
+            if ((moeda[i].vivo)){   
+                    DrawRectangle(moeda[i].position.x, moeda[i].position.y, moeda[i].hitbox.width, moeda[i].hitbox.height, GOLD);
+                }
+            }
+
+            for(int i = 0; i < 5; i++){
+                if (inimigo[i].vivo){ //Aproxima o coordenada da hitbox do inimigo ate a do player
+                    if(player.position.x > inimigo[i].hitbox.x)
+                        inimigo[i].hitbox.x += 1;
+                    if(player.position.x < inimigo[i].hitbox.x)
+                        inimigo[i].hitbox.x -= 1;            // O 1 pode ser alterado pra mudar a velocidade dos inimigos
+                    if(player.position.y > inimigo[i].hitbox.y)
+                        inimigo[i].hitbox.y += 1;
+                    if(player.position.y < inimigo[i].hitbox.y)
+                        inimigo[i].hitbox.y -= 1;
+                }
+            }
+
+            for (int i =0; i<100;i++){       
+                if((CheckCollisionRecs(player.rectangle,moeda[i].hitbox)) && moeda[i].vivo) { //checa colisão com moedas vivas
+                    moeda[i].vivo = false; // "mata" a moeda
+                    dinheiros += 5;        // adiciona valor ao score
+                }
+            }
+
+                for (int i = 0; i < NUM_SHOOTS; i++){
+            if (shoot[i].active){
+
+                //MOVIMENTA A BALA 
+
+                switch (shoot[i].direction)
+                {
+                case CIMA:
+                    shoot[i].position.y -= shoot[i].speed.y;
+                    break;
+                
+                case BAIXO:
+                    shoot[i].position.y += shoot[i].speed.y;
+                    break;
+
+                case DIREITA:
+                    shoot[i].position.x += shoot[i].speed.x;
+                    break;
+
+                case ESQUERDA:
+                    shoot[i].position.x -= shoot[i].speed.x;
+                    break;
+
+                default:
+                    break;
+                }
+
+                if (shoot[i].position.x >= LIMITE_DIREITA || shoot[i].position.x <= LIMITE_ESQUERDA ||shoot[i].position.y >= LIMITE_BAIXO || shoot[i].position.y <= LIMITE_CIMA){ //EXCLUI A BALA DEPOIS QUE SAI DA TELA
+                    shoot[i].active = false;
+                    shootRate = 0;
+                }
+            }
+         }
+
+                for (int i = 0; i < NUM_SHOOTS; i++){
+                    if (shoot[i].active)
+                    //DESENHA A BALA
+                    DrawRectangle(shoot[i].position.x, shoot[i].position.y, shoot[i].Hitbox.width, shoot[i].Hitbox.height, WHITE);
+                }
+
+                if((direction == 0)){
+                    DrawTextureRec(character, frameRecXInverted, (Vector2) {player.position.x -30, player.position.y-10}, RAYWHITE);
+                    
+                }
+                else
+                    DrawTextureRec(character, frameRec, (Vector2) {player.position.x -30, player.position.y-10}, RAYWHITE);
+
+                EndMode2D();
+                DrawText(TextFormat("Dinheiros = %d",dinheiros),0,0,30,RED);
+                }break;
+                        default: break;
+                    }
+
+                if (dinheiros >= 200) // Alterar quantidade de dinheiro necessário para ganhar
+                    DrawText("Agora vc pode pagar o agiota que só aceita notas de 100",100,100,20,RED); //placeholder tela de ganhar o jogo
+                EndDrawing();
+    }
+
+    //UNLOAD 
+    UnloadTexture(button);
+    UnloadTexture(backgroundTitle);
+    UnloadTexture(character);
+    UnloadTexture(backgroundGame);
+    UnloadSound(clickSound);
+
+    CloseWindow(); 
+    return 0;
+}

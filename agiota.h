@@ -1,6 +1,3 @@
-// todos os structs que usamos no projeto organizado em uma file separada
-// **********************************************************************
-
 #include "raylib.h"
 
 const int screenWidth = 1080;
@@ -19,6 +16,7 @@ typedef struct moeda{
     Rectangle hitbox;       //Hitbox da moeda
     bool vivo;              //Saber se a moeda existe
     Color cor;              //Cor da hitbox da moeda (BLANK para ficar transparente)
+    Vector2 position;
 } Moeda;
 
 typedef struct Player
@@ -35,6 +33,6 @@ typedef struct Shoot
     bool active;
     Color color;
     ShootDirection direction;
+    Rectangle Hitbox;
 
 } Shoot;
-

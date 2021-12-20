@@ -111,8 +111,8 @@ int main(void) {
     player.hitbox.y = 250.0f;
     player.hitbox.width = 20;
     player.hitbox.height = 20;
-    player.speed.x = 7;
-    player.speed.y = 7;
+    player.speed.x = 4;
+    player.speed.y = 4;
     player.position.x = player.hitbox.x;
     player.position.y = player.hitbox.y;
 
@@ -343,13 +343,13 @@ int main(void) {
                 for(int i = 0; i < 12; i++){
                 if (inimigo[i].vivo){ //Aproxima o coordenada da hitbox do inimigo ate a do player
                     if(player.position.x > inimigo[i].hitbox.x)
-                        inimigo[i].hitbox.x += 1;
+                        inimigo[i].hitbox.x += 1.5;
                     if(player.position.x < inimigo[i].hitbox.x)
-                        inimigo[i].hitbox.x -= 1;            // O 1 pode ser alterado pra mudar a velocidade dos inimigos
+                        inimigo[i].hitbox.x -= 1.5;            // O 1 pode ser alterado pra mudar a velocidade dos inimigos
                     if(player.position.y > inimigo[i].hitbox.y)
-                        inimigo[i].hitbox.y += 1;
+                        inimigo[i].hitbox.y += 1.5;
                     if(player.position.y < inimigo[i].hitbox.y)
-                        inimigo[i].hitbox.y -= 1;
+                        inimigo[i].hitbox.y -= 1.5;
 
                         if ((inimigo[i].vivo) && (player.position.x >= inimigo[i].hitbox.x)){
                     DrawTextureRec(enemy, enemyRecInverted, (Vector2) {inimigo[i].hitbox.x, inimigo[i].hitbox.y} , WHITE);

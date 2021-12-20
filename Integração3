@@ -1,4 +1,3 @@
-
 #include "raylib.h"
 #include "agiota.h"
 
@@ -427,10 +426,10 @@ int main(void) {
                 for (int i = 0; i < NUM_SHOOTS; i++){
 
                     if (shoot[i].active && shootDirection == CIMA)
-                    DrawTextureRec(BulletY, bulletV, (Vector2) {shoot[i].rect.x, shoot[i].rect.y}, WHITE);
+                    DrawTextureRec(bullet, bulletRec, (Vector2) {shoot[i].rect.x, shoot[i].rect.y}, WHITE);
 
                     if (shoot[i].active && shootDirection == BAIXO)
-                    DrawTextureRec(BulletY, bulletVInverted, (Vector2) {shoot[i].rect.x, shoot[i].rect.y}, WHITE);
+                    DrawTextureRec(bullet, bulletRec, (Vector2) {shoot[i].rect.x, shoot[i].rect.y}, WHITE);
 
                     if (shoot[i].active && shootDirection == DIREITA)
                     DrawTextureRec(bullet, bulletRec, (Vector2) {shoot[i].rect.x, shoot[i].rect.y}, WHITE);

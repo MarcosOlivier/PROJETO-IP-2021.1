@@ -85,8 +85,8 @@ int main(void) {
     int frameSpeed = 15;
 
     //CARREGAR TEXTURAS E SONS
-    Texture2D button = LoadTexture("texturas\\button.png");
-    Texture2D backgroundTitle = LoadTexture("texturas\\country-platform-preview.png");
+    Texture2D button = LoadTexture("texturas\\newbutton.png");
+    Texture2D backgroundTitle = LoadTexture("texturas\\backgroundMenu.png);
 
     Sound clickSound = LoadSound("texturas\\resourses_MenuClick.wav");
     Sound shotSound = LoadSound("texturas\\GUNSHOT SOUND EFFECT.wav");
@@ -94,7 +94,7 @@ int main(void) {
     Sound gamesound = LoadSound("texturas\\Grimm_Hollow_Knight__The_Grimm_Troupe_160k.mp3");
 
     Texture2D character = LoadTexture("texturas\\Running.png");
-    Texture2D backgroundGame = LoadTexture("texturas\\cenario.png");
+    Texture2D backgroundGame = LoadTexture("texturas\\backgroundMenu.png");
     Texture2D win = LoadTexture("texturas\\avengers-hulk-agiota.png");
     Texture2D enemy = LoadTexture ("texturas\\NightThief.png");
     Texture2D coin = LoadTexture("texturas\\moedateste.png");
@@ -199,7 +199,6 @@ int main(void) {
 
         switch(currentScreen)  
         {
-
             case TITLE:
             {
                 scrollTitleScreen -= velScroll;
@@ -322,7 +321,7 @@ int main(void) {
                     ClearBackground(BLACK);
                     DrawTexture(backgroundTitle, scrollTitleScreen, 0, WHITE);
                     DrawTexture(backgroundTitle, scrollTitleScreen + screenWidth, 0, WHITE);
-                    DrawTexture(button, screenWidth/4.0f - button.width/2.0f, screenHeight/4.0f - button.height/2.0f, WHITE);
+                    DrawTexture(button, screenWidth/4.0f - button.width/2.0f, screenHeight/4.0f - button.height/2.0f, RAYWHITE);
                     DrawText("PLAY", screenWidth/4.0f + button.width/1.5f, screenHeight/4.0f - button.height/4.0f, button.height/2, BLACK);
                 } break;
                 case GAMEPLAY:
@@ -469,15 +468,16 @@ int main(void) {
                 case WIN:
                 {
                 DrawTexture(win, 0, 0, RAYWHITE);
-                DrawText("YOU WIN", 50, 50, 40, RED);
-                DrawText("Matheus gomes (mga3)", 750, 500, 15,RED);
-                DrawText("Kelno Espírito Santo (kes)", 750, 480, 15,RED);
-                DrawText("Caio Andrada (cab5)", 750, 460, 15, RED);
-                DrawText("João Pedro (jpfs2)", 750, 440, 15,RED);
-                DrawText("Marcos Oliveira (mvo)", 750, 420,15, RED);
-                DrawText("Leandro Luiz (lllf)", 750, 400,15, RED);
-                DrawText("Luis Henrique (lhol)", 750, 380,15, RED);
-                DrawText("Joao Victor Alves (jvca)", 750, 360,15, RED);
+                DrawText("YOU WIN", 50, 50, 40, GOLD);
+                DrawText("Matheus gomes (mga3)", 750, 500, 15,GOLD);
+                DrawText("Kelno Espírito Santo (kes)", 750, 480, 15,GOLD);
+                DrawText("Caio Andrada (cab5)", 750, 460, 15, GOLD);
+                DrawText("João Pedro (jpfs2)", 750, 440, 15,GOLD);
+                DrawText("Marcos Oliveira (mvo)", 750, 420,15, GOLD);
+                DrawText("Leandro Luiz (lllf)", 750, 400,15, GOLD);
+                DrawText("Luis Henrique (lhol)", 750, 380,15, GOLD);
+                DrawText("Joao Victor Alves (jvca)", 750, 360,15, GOLD);
+                
                 } break;
             
 

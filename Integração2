@@ -13,19 +13,6 @@
 #define LIMITE_BAIXO 2700
 #define LIMITE_ZOOM_MAX 1.5f
 #define LIMITE_ZOOM_MIN 0.3f
-#include "raylib.h"
-
-#define MAX_FRAME_SPEED 15
-#define MIN_FRAME_SPEED 1
-#define NUM_SHOOTS 99999
-
-#define LIMITE_ESQUERDA -2400
-#define LIMITE_DIREITA 4800
-#define LIMITE_CIMA -1350
-#define LIMITE_BAIXO 2700
-#define LIMITE_ZOOM_MAX 1.5f
-#define LIMITE_ZOOM_MIN 0.3f
-
 
 typedef struct Shoot
 {
@@ -99,7 +86,10 @@ int main(void) {
     //CARREGAR TEXTURAS E SONS
     Texture2D button = LoadTexture("texturas\\button.png");
     Texture2D backgroundTitle = LoadTexture("texturas\\country-platform-preview.png");
+
     Sound clickSound = LoadSound("texturas\\resourses_MenuClick.wav");
+    Sound shotSound = LoadSound("texturas\\GUNSHOT SOUND EFFECT.wav");
+
     Texture2D character = LoadTexture("texturas\\Running.png");
     Texture2D backgroundGame = LoadTexture("texturas\\cenario.png");
     backgroundGame.height = backgroundGame.height/2.0f;
@@ -159,8 +149,9 @@ int main(void) {
 
     //Rectangle Bullet =  {0.0f, 0.0f, (float)bullet.width ,(float)bullet.height};
 
-    Rectangle frameRec = {0.0f, 0.0f, (float)-character.width/8 ,(float)character.height/2};  
-    Rectangle frameRecXInverted = {0.0f, 0.0f, (float)character.width/8 ,(float)character.height/2}; 
+    Rectangle frameRec = {0.0f, 0.0f, (float)-character.width/8 ,(float)character.height/2};
+    Rectangle frameRecXInverted = {0.0f, 0.0f, (float)character.width/8 ,(float)character.height/2};
+ 
 
     //botao e mouse
     Vector2 mousePoint = { 0.0f, 0.0f };
@@ -194,61 +185,61 @@ int main(void) {
                 shootDirection = DIREITA;
                 direction = 1;
                 player.hitbox.x += player.speed.x;
-                if (player.hitbox.x >= LIMITE_DIREITA) player.hitbox.x = LIMITE_DIREITA;
+                if (player.position.x >= LIMITE_DIREITA) player.position.x = LIMITE_DIREITA;
                 if(framesCounter >= (60/frameSpeed)){
                     framesCounter = 0;
                     currentframe++;
-                    if(currentframe>4) currentframe=0;
-                    frameRec.x = (float)currentframe*(float)character.width/8, (float)character.height/2;           
+                    if(currentframe>8) currentframe=0;
+                    frameRec.x = (float)currentframe*(float)character.width/8;         
             }   
         }
                 if(IsKeyDown(KEY_LEFT)){  //MOVIMENTA O PERSONAGEM PRA ESQUERDA
                     shootDirection = ESQUERDA;
                     direction = 0;
                     player.hitbox.x -= player.speed.x;
-                    if (player.hitbox.x <= LIMITE_ESQUERDA) player.hitbox.x = LIMITE_ESQUERDA;
+                    if (player.position.x <= LIMITE_ESQUERDA) player.position.x = LIMITE_ESQUERDA;
                     if(framesCounter >= (60/frameSpeed)){
                     framesCounter = 0;
                     currentframe++;
-                    if(currentframe>4)
+                    if(currentframe>8)
                     currentframe=0;
 
-                    frameRecXInverted.x = (float)currentframe*(float)character.width/8, (float)character.height/2;           
+                    frameRecXInverted.x = (float)currentframe*(float)character.width/8;          
             }   
         }
                 if(IsKeyDown(KEY_UP)){  //MOVIMENTA O PERSONAGEM PRA CIMA
                     shootDirection = CIMA;
                     player.hitbox.y -= player.speed.y;
-                    if (player.hitbox.y <= LIMITE_CIMA) player.hitbox.y = LIMITE_CIMA;
+                    if (player.position.y <= LIMITE_CIMA) player.position.y = LIMITE_CIMA;
                     if(framesCounter >= (60/frameSpeed)){
                         framesCounter = 0;
                         currentframe++;
-                        if(currentframe>4)
+                        if(currentframe>8)
                         currentframe=0;
                         if(shootDirection == 0)
-                            frameRecXInverted.x = (float)currentframe*(float)character.width/8, (float)character.height/2;   
+                            frameRecXInverted.x = (float)currentframe*(float)character.width/8; 
                         else
-                            frameRec.x = (float)currentframe*(float)character.width/8, (float)character.height/2;       
+                            frameRec.x = (float)currentframe*(float)character.width/8;       
                     }   
                 }
                 if(IsKeyDown(KEY_DOWN)){ //MOVIMENTA O PERSONAGEM PRA BAIXO
                     shootDirection = BAIXO;
                     player.hitbox.y  += player.speed.y;
-                    if (player.hitbox.y >= LIMITE_BAIXO) player.hitbox.y = LIMITE_BAIXO;
+                    if (player.position.y >= LIMITE_BAIXO) player.position.y = LIMITE_BAIXO;
                     if(framesCounter >= (60/frameSpeed)){
                         framesCounter = 0;
                         currentframe++;
-                        if(currentframe>4)
+                        if(currentframe>8)
                         currentframe=0;
                         if(direction == 0)
-                            frameRecXInverted.x = (float)currentframe*(float)character.width/8, (float)character.height/2;   
+                            frameRecXInverted.x = (float)currentframe*(float)character.width/8;   
                         else
-                            frameRec.x = (float)currentframe*(float)character.width/8, (float)character.height/2;       
+                            frameRec.x = (float)currentframe*(float)character.width/8;       
                     }
             }
             if (IsKeyDown(KEY_SPACE))
     {
-
+        
         shootRate += 5;
         shootCounter++;
         for (int i = 0; i < NUM_SHOOTS; i++)
@@ -389,11 +380,11 @@ int main(void) {
                 }
 
                 if((direction == 0)){
-                    DrawTextureRec(character, frameRecXInverted, (Vector2) {player.position.x -30, player.position.y-10}, RAYWHITE);
+                    DrawTextureRec(character, frameRecXInverted, player.position, RAYWHITE);
                     
                 }
                 else
-                    DrawTextureRec(character, frameRec, (Vector2) {player.position.x -30, player.position.y-10}, RAYWHITE);
+                    DrawTextureRec(character, frameRec, player.position, RAYWHITE);
 
                 EndMode2D();
                 DrawText(TextFormat("Dinheiros = %d",dinheiros),0,0,30,RED);
@@ -412,6 +403,7 @@ int main(void) {
     UnloadTexture(character);
     UnloadTexture(backgroundGame);
     UnloadSound(clickSound);
+    UnloadSound(shotSound);
 
     CloseWindow(); 
     return 0;

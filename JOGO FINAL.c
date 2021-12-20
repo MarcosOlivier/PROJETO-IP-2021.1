@@ -307,7 +307,7 @@ int main(void) {
                         } 
                 }
 
-                if(dinheiros >= 10){
+                if(dinheiros >= 50){
                     currentScreen = WIN;
                 }
 
@@ -493,7 +493,7 @@ int main(void) {
                 break;
                     }
 
-                if (dinheiros >= 10) // Alterar quantidade de dinheiro necessário para ganhar
+                if (dinheiros >= 50) // Alterar quantidade de dinheiro necessário para ganhar
                     DrawText("Agora você pode pagar o agiota que só aceita notas de 100",100,100,20,RED); //placeholder tela de ganhar o jogo
                 EndDrawing();
     }

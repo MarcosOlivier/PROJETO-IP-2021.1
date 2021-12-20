@@ -93,6 +93,8 @@ int main(void) {
 
     Texture2D character = LoadTexture("texturas\\Running.png");
     Texture2D backgroundGame = LoadTexture("texturas\\cenario.png");
+    Texture2D win = LoadTexture("texturas\\avengers-hulk-agiota.png");
+
     backgroundGame.height = backgroundGame.height/2.0f;
     backgroundGame.width = backgroundGame.width/2.0f;
 
@@ -147,6 +149,8 @@ int main(void) {
     backgroundTitle.width = screenWidth;
     backgroundGame.width = 3*backgroundGame.width;
     backgroundGame.height = 3*backgroundGame.height;
+    win.width = backgroundGame.width;
+    win.height = backgroundGame.height;
 
     //Rectangle Bullet =  {0.0f, 0.0f, (float)bullet.width ,(float)bullet.height};
 
@@ -263,13 +267,18 @@ int main(void) {
                 else if (camera.zoom < 0.1f) camera.zoom = 0.1f;
 
                 if (CheckButton(mousePoint, recButtonGameplay, clickSound)) currentScreen = TITLE;
-                
+
                 for(int j = 0; j < 5; j++){
                 if(CheckCollisionRecs(player.hitbox, inimigo[j].hitbox)){
                             player.vivo = false;
                             currentScreen = GAMEOVER;
                         } 
                 }
+
+                if(dinheiros == 50){
+                    currentScreen = WIN;
+                }
+
             } break;
             default: break;
         }
@@ -415,6 +424,20 @@ int main(void) {
                 DrawText("Luis Henrique (lhol)", 200, 380,15, RED);
                 DrawText("Joao Victor Alves (jvca)", 200, 360,15, RED);
                 } break;
+
+                case WIN:
+                {
+                DrawTexture(win, 0, 0, RAYWHITE);
+                DrawText("YOU WIN", 50, 50, 40, RED);
+                DrawText("Matheus gomes (mga3)", 750, 500, 15,RED);
+                DrawText("Kelno Espírito Santo (kes)", 600, 480, 15,RED);
+                DrawText("Caio Andrada (cab5)", 750, 460, 15, RED);
+                DrawText("João Pedro (jpfs2)", 750, 440, 15,RED);
+                DrawText("Marcos Oliveira (mvo)", 750, 420,15, RED);
+                DrawText("Leandro Luiz (lllf)", 750, 400,15, RED);
+                DrawText("Luis Henrique (lhol)", 750, 380,15, RED);
+                DrawText("Joao Victor Alves (jvca)", 750, 360,15, RED);
+                } break;
             
 
                 default:
@@ -422,8 +445,8 @@ int main(void) {
                 break;
                     }
 
-                if (dinheiros >= 200) // Alterar quantidade de dinheiro necessário para ganhar
-                    DrawText("Agora vc pode pagar o agiota que só aceita notas de 100",100,100,20,RED); //placeholder tela de ganhar o jogo
+                if (dinheiros >= 50) // Alterar quantidade de dinheiro necessário para ganhar
+                    DrawText("Agora você pode pagar o agiota que só aceita notas de 100",100,100,20,RED); //placeholder tela de ganhar o jogo
                 EndDrawing();
     }
 
@@ -432,6 +455,7 @@ int main(void) {
     UnloadTexture(backgroundTitle);
     UnloadTexture(character);
     UnloadTexture(backgroundGame);
+    UnloadTexture(win);
     UnloadSound(clickSound);
     UnloadSound(shotSound);
 

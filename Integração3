@@ -44,7 +44,7 @@ typedef struct Player
 typedef struct Inimigo{
     Rectangle hitbox;       //hitbox do inimigo
     bool vivo;              //Saber o estado do inimigo (vivo ou morto), precisamos do codigo da BALA. inimigo[i].vivo = vivo. !inimigo[i].vivo = morto;
-    Color cor;              //Cor da hitbox do inimigo (BLANK para ficar transparente)(hitbox)
+    Color cor;             //Cor da hitbox do inimigo (BLANK para ficar transparente)(hitbox)
 } Inimigo;
 
 Inimigo inimigo[50];
@@ -90,10 +90,16 @@ int main(void) {
 
     Sound clickSound = LoadSound("texturas\\resourses_MenuClick.wav");
     Sound shotSound = LoadSound("texturas\\GUNSHOT SOUND EFFECT.wav");
+    Sound menusound = LoadSound("texturas\\y2meta.com-Nick-Cave-and-the-Bad-Seeds-Red-Right-Hand-Karaoke-Instrumental-Lyrics-_128-kbps_.wav");
+    Sound gamesound = LoadSound("texturas\\Grimm_Hollow_Knight__The_Grimm_Troupe_160k.mp3");
 
     Texture2D character = LoadTexture("texturas\\Running.png");
     Texture2D backgroundGame = LoadTexture("texturas\\cenario.png");
     Texture2D win = LoadTexture("texturas\\avengers-hulk-agiota.png");
+    Texture2D enemy = LoadTexture ("texturas\\NightThief.png");
+    Texture2D coin = LoadTexture("texturas\\moedateste.png");
+    Texture2D bullet = LoadTexture("texturas\\bullet.png");
+    Texture2D BulletY = LoadTexture("texturas\\bulletVertical.png");
 
     backgroundGame.height = backgroundGame.height/2.0f;
     backgroundGame.width = backgroundGame.width/2.0f;
@@ -104,6 +110,8 @@ int main(void) {
     player.hitbox.height = 20;
     player.speed.x = 7;
     player.speed.y = 7;
+    player.position.x = player.hitbox.x;
+    player.position.y = player.hitbox.y;
 
     Camera2D camera = { 0 };     //CARACTERISTICAS DA CAMERA
     camera.target = (Vector2) {player.position.x + 20, player.position.y + 20};
@@ -111,11 +119,11 @@ int main(void) {
     camera.rotation = 0.0f;
     camera.zoom = 1.5f;
 
-    for(int i = 0; i < 5; i++){                         //Inicializando os inimigos
+    for(int i = 0; i < 12; i++){                         //Inicializando os inimigos
         inimigo[i].hitbox.x = GetRandomValue(0,1080);   //Em posiçoes aleatorias
         inimigo[i].hitbox.y = GetRandomValue(0,720);
-        inimigo[i].hitbox.width = 20;                   //Largura e altura da hitbox dos inimigos
-        inimigo[i].hitbox.height = 20;
+        inimigo[i].hitbox.width = 30;                   //Largura e altura da hitbox dos inimigos
+        inimigo[i].hitbox.height = 30;
         inimigo[i].vivo = true;                         //Estado dos inimigos (Vivo)
         inimigo[i].cor = RED;                          //Cor da hitbox dos inimigos(BLANK para ficar transparente)
     }
@@ -151,11 +159,26 @@ int main(void) {
     backgroundGame.height = 3*backgroundGame.height;
     win.width = backgroundGame.width;
     win.height = backgroundGame.height;
+    enemy.height = enemy.height*1.5;
+    enemy.width = enemy.width*1.5;
+    bullet.height = bullet.height/18;
+    bullet.width = bullet.width/18;
+
+    SetSoundVolume(menusound, 0.4);
+
+    SetSoundVolume(gamesound, 0.4);
 
     //Rectangle Bullet =  {0.0f, 0.0f, (float)bullet.width ,(float)bullet.height};
 
     Rectangle frameRec = {0.0f, 0.0f, (float)-character.width/8 ,(float)character.height/2};
     Rectangle frameRecXInverted = {0.0f, 0.0f, (float)character.width/8 ,(float)character.height/2};
+    Rectangle enemyRec ={0.0f, 0.0f, (float)-enemy.width/8.2 ,(float)enemy.height};
+    Rectangle enemyRecInverted = {0.0f, 0.0f, (float)enemy.width/10 ,(float)enemy.height};
+    Rectangle coinRec = {0.0f, 0.0f, (float)coin.width/6 ,(float)coin.height};
+    Rectangle bulletRec = {0.0f, 0.0f, (float)bullet.width ,(float)bullet.height};
+    Rectangle bulletRecInverted =  {0.0f, 0.0f, (float)-bullet.width ,(float)bullet.height};
+    Rectangle bulletV = {0.0f, 0.0f, (float)bullet.width ,(float)bullet.height};
+    Rectangle bulletVInverted = {0.0f, 0.0f, (float)bullet.width ,(float)-bullet.height};
  
 
     //botao e mouse
@@ -183,10 +206,16 @@ int main(void) {
                 if (scrollTitleScreen <= -screenWidth) scrollTitleScreen = 0.0f;
 
                if (CheckButton(mousePoint, recButtonTitle, clickSound)) currentScreen = GAMEPLAY;
+
+               if(!IsSoundPlaying(menusound)) 
+                    PlaySound(menusound);
             } break;
 
             case GAMEPLAY:
             {
+                if (IsSoundPlaying(menusound)) StopSound(menusound);
+                if (!IsSoundPlaying(gamesound)) PlaySound(gamesound);
+
                 if(IsKeyDown(KEY_RIGHT)){  //MOVIMENTA O PERSONAGEM PRA DIREITA
                 shootDirection = DIREITA;
                 direction = 1;
@@ -201,7 +230,6 @@ int main(void) {
         }
                 if(IsKeyDown(KEY_LEFT)){  //MOVIMENTA O PERSONAGEM PRA ESQUERDA
                     shootDirection = ESQUERDA;
-                    direction = 0;
                     player.hitbox.x -= player.speed.x;
                     if (player.position.x <= LIMITE_ESQUERDA) player.position.x = LIMITE_ESQUERDA;
                     if(framesCounter >= (60/frameSpeed)){
@@ -275,7 +303,7 @@ int main(void) {
                         } 
                 }
 
-                if(dinheiros == 50){
+                if(dinheiros >= 150){
                     currentScreen = WIN;
                 }
 
@@ -306,16 +334,33 @@ int main(void) {
                     for (int j = -1; j < 2; j++) {
                         DrawTexture(backgroundGame, i*backgroundGame.width, j*backgroundGame.height, WHITE);
                     }
-                } 
+                }
+                
+                for(int i = 0; i < 12; i++){
+                if (inimigo[i].vivo){ //Aproxima o coordenada da hitbox do inimigo ate a do player
+                    if(player.position.x > inimigo[i].hitbox.x)
+                        inimigo[i].hitbox.x += 1;
+                    if(player.position.x < inimigo[i].hitbox.x)
+                        inimigo[i].hitbox.x -= 1;            // O 1 pode ser alterado pra mudar a velocidade dos inimigos
+                    if(player.position.y > inimigo[i].hitbox.y)
+                        inimigo[i].hitbox.y += 1;
+                    if(player.position.y < inimigo[i].hitbox.y)
+                        inimigo[i].hitbox.y -= 1;
 
-                for(int i = 0; i < 5; i++){
-                if ((inimigo[i].vivo)){
-                    DrawRectangleRec(inimigo[i].hitbox, inimigo[i].cor); //Desenha 5 quadrados em localizaçoes aleatorias, a ideia é deixar os quadrados invisiveis e
-                }                                                        //botar a sprite do inimigo em cima. Preciso de ajuda pra colocar delay nos spawns se alguem souber
-            }
+                        if ((inimigo[i].vivo) && (player.position.x >= inimigo[i].hitbox.x)){
+                    DrawTextureRec(enemy, enemyRecInverted, (Vector2) {inimigo[i].hitbox.x, inimigo[i].hitbox.y} , WHITE);
+                    }
+
+                    if ((inimigo[i].vivo) && (player.position.x < inimigo[i].hitbox.x)){
+                        DrawTextureRec(enemy, enemyRec, (Vector2) {inimigo[i].hitbox.x, inimigo[i].hitbox.y} , WHITE);
+                        
+                    }
+                }
+            }                                             
+        
 
             for(int i = 0; i <NUM_SHOOTS; i++){ //colisao bala - inimigo
-                for (int j = 0; j < 5; j++){
+                for (int j = 0; j < 12; j++){
                     if ((CheckCollisionRecs(shoot[j].rect,inimigo[j].hitbox))){ 
                         moeda[contmoedas].hitbox.x = inimigo[j].hitbox.x -20;  // coloquei o -20 só para o teste, alterar faz a moeda spawna 
                         moeda[contmoedas].hitbox.y = inimigo[j].hitbox.y -20;  // em diferentes lugares
@@ -334,29 +379,15 @@ int main(void) {
 
             for(int i = 0; i < 100; i++){           //desenhando a moeda na tela
             if ((moeda[i].vivo)){   
-                    DrawRectangle(moeda[i].positionmoeda.x, moeda[i].positionmoeda.y, moeda[i].hitbox.width, moeda[i].hitbox.height, GOLD);
-                }
-            }
-
-            for(int i = 0; i < 5; i++){
-                if (inimigo[i].vivo){ //Aproxima o coordenada da hitbox do inimigo ate a do player
-                    if(player.position.x > inimigo[i].hitbox.x)
-                        inimigo[i].hitbox.x += 1;
-                    if(player.position.x < inimigo[i].hitbox.x)
-                        inimigo[i].hitbox.x -= 1;            // O 1 pode ser alterado pra mudar a velocidade dos inimigos
-                    if(player.position.y > inimigo[i].hitbox.y)
-                        inimigo[i].hitbox.y += 1;
-                    if(player.position.y < inimigo[i].hitbox.y)
-                        inimigo[i].hitbox.y -= 1;
+                    DrawTextureRec(coin, coinRec, (Vector2){moeda[i].hitbox.x, moeda[i].hitbox.y}, WHITE);
                 }
             }
             for (int i =0; i<20;i++){      
-                for (int j=0; j<NUM_SHOOTS;j++){
                 if((CheckCollisionRecs(player.hitbox,moeda[i].hitbox)) && moeda[i].vivo) { //checa colisão com moedas vivas
                     moeda[i].vivo = false; // "mata" a moeda
                     dinheiros += 10;        // adiciona valor ao score
                 }
-            }
+
             }
 
                 for (int i = 0; i < NUM_SHOOTS; i++){
@@ -394,13 +425,23 @@ int main(void) {
          }
 
                 for (int i = 0; i < NUM_SHOOTS; i++){
-                    if (shoot[i].active)
-                    //DESENHA A BALA
-                    DrawRectangleRec(shoot[i].rect, shoot[i].color);
-                }
+
+                    if (shoot[i].active && shootDirection == CIMA)
+                    DrawTextureRec(BulletY, bulletV, (Vector2) {shoot[i].rect.x, shoot[i].rect.y}, WHITE);
+
+                    if (shoot[i].active && shootDirection == BAIXO)
+                    DrawTextureRec(BulletY, bulletVInverted, (Vector2) {shoot[i].rect.x, shoot[i].rect.y}, WHITE);
+
+                    if (shoot[i].active && shootDirection == DIREITA)
+                    DrawTextureRec(bullet, bulletRec, (Vector2) {shoot[i].rect.x, shoot[i].rect.y}, WHITE);
+
+                    if (shoot[i].active && shootDirection == ESQUERDA)
+                    DrawTextureRec(bullet, bulletRecInverted, (Vector2) {shoot[i].rect.x, shoot[i].rect.y}, WHITE);
+
+            }
 
                 if((direction == 0)){
-                    DrawTextureRec(character, frameRecXInverted, player.position, RAYWHITE);
+                    DrawTextureRec(character, frameRecXInverted, (Vector2) {player.hitbox.x, player.hitbox.y}, RAYWHITE);
                     
                 }
                 else
@@ -430,7 +471,7 @@ int main(void) {
                 DrawTexture(win, 0, 0, RAYWHITE);
                 DrawText("YOU WIN", 50, 50, 40, RED);
                 DrawText("Matheus gomes (mga3)", 750, 500, 15,RED);
-                DrawText("Kelno Espírito Santo (kes)", 600, 480, 15,RED);
+                DrawText("Kelno Espírito Santo (kes)", 750, 480, 15,RED);
                 DrawText("Caio Andrada (cab5)", 750, 460, 15, RED);
                 DrawText("João Pedro (jpfs2)", 750, 440, 15,RED);
                 DrawText("Marcos Oliveira (mvo)", 750, 420,15, RED);
@@ -445,7 +486,7 @@ int main(void) {
                 break;
                     }
 
-                if (dinheiros >= 50) // Alterar quantidade de dinheiro necessário para ganhar
+                if (dinheiros >= 150) // Alterar quantidade de dinheiro necessário para ganhar
                     DrawText("Agora você pode pagar o agiota que só aceita notas de 100",100,100,20,RED); //placeholder tela de ganhar o jogo
                 EndDrawing();
     }
@@ -456,8 +497,12 @@ int main(void) {
     UnloadTexture(character);
     UnloadTexture(backgroundGame);
     UnloadTexture(win);
+    UnloadTexture(coin);
+    UnloadTexture(bullet);
     UnloadSound(clickSound);
     UnloadSound(shotSound);
+    UnloadSound(menusound);
+    UnloadSound(gamesound);
 
     CloseWindow(); 
     return 0;

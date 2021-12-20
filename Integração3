@@ -29,6 +29,7 @@ typedef struct Player
     Vector2 position;
     Vector2 speed;
     Rectangle hitbox;
+    bool vivo;
 } Player;
 
 
@@ -169,8 +170,9 @@ int main(void) {
         player.position.x = player.hitbox.x - 15;
         player.position.y = player.hitbox.y - 5;
 
-        switch(currentScreen)
+        switch(currentScreen)  
         {
+
             case TITLE:
             {
                 scrollTitleScreen -= velScroll;
@@ -238,9 +240,8 @@ int main(void) {
                     }
             }
             if (IsKeyDown(KEY_SPACE))
-    {
-        
-        shootRate += 5;
+    {      
+        shootRate += 4;
         shootCounter++;
         for (int i = 0; i < NUM_SHOOTS; i++)
         {
@@ -262,19 +263,26 @@ int main(void) {
                 else if (camera.zoom < 0.1f) camera.zoom = 0.1f;
 
                 if (CheckButton(mousePoint, recButtonGameplay, clickSound)) currentScreen = TITLE;
+                
+                for(int j = 0; j < 5; j++){
+                if(CheckCollisionRecs(player.hitbox, inimigo[j].hitbox)){
+                            player.vivo = false;
+                            currentScreen = GAMEOVER;
+                        } 
+                }
             } break;
             default: break;
         }
 
         BeginDrawing();
 
-            ClearBackground(RAYWHITE);
+            ClearBackground(BLACK);
 
             switch(currentScreen)
             {
                 case TITLE:
                 {
-                    ClearBackground(RAYWHITE);
+                    ClearBackground(BLACK);
                     DrawTexture(backgroundTitle, scrollTitleScreen, 0, WHITE);
                     DrawTexture(backgroundTitle, scrollTitleScreen + screenWidth, 0, WHITE);
                     DrawTexture(button, screenWidth/4.0f - button.width/2.0f, screenHeight/4.0f - button.height/2.0f, WHITE);
@@ -307,7 +315,10 @@ int main(void) {
                         moeda[contmoedas].vivo = true;                         // coloca a moeda viva quando colidir com o inimigo
                         inimigo[j].hitbox.x += GetRandomValue(-1080,1080);     // prótotipo respawn dos inimigos
                         inimigo[j].hitbox.y += GetRandomValue(-1080,1080);     // joga os inimigos para longe da tela
-                        contmoedas++;                                          // variavel que relaciona os 5 inimigos com indice das moedas
+                        contmoedas++;
+                        if(contmoedas < 100){
+                            contmoedas = 0;
+                        }                                     
                     }
                 }
             }
@@ -388,8 +399,27 @@ int main(void) {
 
                 EndMode2D();
                 DrawText(TextFormat("Dinheiros = %d",dinheiros),0,0,30,RED);
-                }break;
-                        default: break;
+                }
+                break; 
+
+            case GAMEOVER:
+                {
+                ClearBackground(BLACK);
+                DrawText("GAME OVER", 50, 50, 40, RED);
+                DrawText("Matheus gomes (mga3)", 200, 500, 15,RED);
+                DrawText("Kelno Espírito Santo (kes)", 200, 480, 15,RED);
+                DrawText("Caio Andrada (cab5)", 200, 460, 15, RED);
+                DrawText("João Pedro (jpfs2)", 200, 440, 15,RED);
+                DrawText("Marcos Oliveira (mvo)", 200, 420,15, RED);
+                DrawText("Leandro Luiz (lllf)", 200, 400,15, RED);
+                DrawText("Luis Henrique (lhol)", 200, 380,15, RED);
+                DrawText("Joao Victor Alves (jvca)", 200, 360,15, RED);
+                } break;
+            
+
+                default:
+                
+                break;
                     }
 
                 if (dinheiros >= 200) // Alterar quantidade de dinheiro necessário para ganhar

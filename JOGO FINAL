@@ -1,5 +1,4 @@
 #include "raylib.h"
-#include "agiota.h"
 
 #define MAX_FRAME_SPEED 15
 #define MIN_FRAME_SPEED 1
@@ -11,6 +10,12 @@
 #define LIMITE_BAIXO 900
 #define LIMITE_ZOOM_MAX 1.5f
 #define LIMITE_ZOOM_MIN 0.3f
+
+const int screenWidth = 800;
+const int screenHeight = 450;
+
+typedef enum ShootDirection {CIMA, BAIXO, DIREITA, ESQUERDA} ShootDirection;
+typedef enum GameScreen {TITLE, GAMEPLAY, GAMEOVER, WIN} GameScreen;
 
 typedef struct Shoot
 {
@@ -72,8 +77,10 @@ int CheckButton(Vector2 mousePoint, Rectangle recButton, Sound clickSound) {
 int contmoedas=0; //relaciona o indice dos 5 inimigos com as moedas
 int dinheiros=0; // qtd de dinheiro do jogador  (pontuação)
 
+
+
 int main(void) {
-    InitWindow(screenWidth, screenHeight, "fodasefodaseaaaaaaaaaaa");
+    InitWindow(screenWidth, screenHeight, "MataVerso");
     InitAudioDevice();
 
     int currentframe = 0;

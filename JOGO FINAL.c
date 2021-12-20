@@ -307,7 +307,7 @@ int main(void) {
                         } 
                 }
 
-                if(dinheiros >= 150){
+                if(dinheiros >= 10){
                     currentScreen = WIN;
                 }
 
@@ -462,28 +462,28 @@ int main(void) {
                 {
                 ClearBackground(BLACK);
                 DrawText("GAME OVER", 50, 50, 40, RED);
-                DrawText("Matheus gomes (mga3)", 200, 500, 15,RED);
-                DrawText("Kelno Espírito Santo (kes)", 200, 480, 15,RED);
-                DrawText("Caio Andrada (cab5)", 200, 460, 15, RED);
-                DrawText("João Pedro (jpfs2)", 200, 440, 15,RED);
-                DrawText("Marcos Oliveira (mvo)", 200, 420,15, RED);
-                DrawText("Leandro Luiz (lllf)", 200, 400,15, RED);
-                DrawText("Luis Henrique (lhol)", 200, 380,15, RED);
-                DrawText("Joao Victor Alves (jvca)", 200, 360,15, RED);
+                DrawText("Matheus gomes (mga3)", 200, 300, 15,RED);
+                DrawText("Kelno Espírito Santo (kes)", 200, 280, 15,RED);
+                DrawText("Caio Andrada (cab5)", 200, 260, 15, RED);
+                DrawText("João Pedro (jpfs2)", 200, 240, 15,RED);
+                DrawText("Marcos Oliveira (mvo)", 200, 220,15, RED);
+                DrawText("Leandro Luiz (lllf)", 200, 200,15, RED);
+                DrawText("Luis Henrique (lhol)", 200, 180,15, RED);
+                DrawText("Joao Victor Alves (jvca)", 200, 160,15, RED);
                 } break;
 
                 case WIN:
                 {
                 DrawTexture(win, 0, 0, RAYWHITE);
                 DrawText("YOU WIN", 50, 50, 40, GOLD);
-                DrawText("Matheus gomes (mga3)", 750, 500, 15,GOLD);
-                DrawText("Kelno Espírito Santo (kes)", 750, 480, 15,GOLD);
-                DrawText("Caio Andrada (cab5)", 750, 460, 15, GOLD);
-                DrawText("João Pedro (jpfs2)", 750, 440, 15,GOLD);
-                DrawText("Marcos Oliveira (mvo)", 750, 420,15, GOLD);
-                DrawText("Leandro Luiz (lllf)", 750, 400,15, GOLD);
-                DrawText("Luis Henrique (lhol)", 750, 380,15, GOLD);
-                DrawText("Joao Victor Alves (jvca)", 750, 360,15, GOLD);
+                DrawText("Matheus gomes (mga3)", 100, 300, 15,GOLD);
+                DrawText("Kelno Espírito Santo (kes)", 100, 280, 15,GOLD);
+                DrawText("Caio Andrada (cab5)", 100, 260, 15, GOLD);
+                DrawText("João Pedro (jpfs2)", 100, 240, 15,GOLD);
+                DrawText("Marcos Oliveira (mvo)", 100, 220,15, GOLD);
+                DrawText("Leandro Luiz (lllf)", 100, 200,15, GOLD);
+                DrawText("Luis Henrique (lhol)", 100, 180,15, GOLD);
+                DrawText("Joao Victor Alves (jvca)", 100, 160,15, GOLD);
                 
                 } break;
             
@@ -493,7 +493,7 @@ int main(void) {
                 break;
                     }
 
-                if (dinheiros >= 150) // Alterar quantidade de dinheiro necessário para ganhar
+                if (dinheiros >= 10) // Alterar quantidade de dinheiro necessário para ganhar
                     DrawText("Agora você pode pagar o agiota que só aceita notas de 100",100,100,20,RED); //placeholder tela de ganhar o jogo
                 EndDrawing();
     }

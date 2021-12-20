@@ -87,7 +87,6 @@ int main(void) {
     Texture2D backgroundTitle = LoadTexture("texturas\\backgroundMenu.png");
 
     Sound clickSound = LoadSound("texturas\\resourses_MenuClick.wav");
-    Sound shotSound = LoadSound("texturas\\GUNSHOT SOUND EFFECT.wav");
     Sound menusound = LoadSound("texturas\\y2meta.com-Nick-Cave-and-the-Bad-Seeds-Red-Right-Hand-Karaoke-Instrumental-Lyrics-_128-kbps_.wav");
     Sound gamesound = LoadSound("texturas\\Grimm_Hollow_Knight__The_Grimm_Troupe_160k.mp3");
 
@@ -224,6 +223,7 @@ int main(void) {
         }
                 if(IsKeyDown(KEY_LEFT)){  //MOVIMENTA O PERSONAGEM PRA ESQUERDA
                     shootDirection = ESQUERDA;
+                    direction = 0;
                     player.hitbox.x -= player.speed.x;
                     if (player.position.x <= LIMITE_ESQUERDA) player.position.x = LIMITE_ESQUERDA;
                     if(framesCounter >= (60/frameSpeed)){
@@ -237,6 +237,7 @@ int main(void) {
         }
                 if(IsKeyDown(KEY_UP)){  //MOVIMENTA O PERSONAGEM PRA CIMA
                     shootDirection = CIMA;
+                    direction = direction;
                     player.hitbox.y -= player.speed.y;
                     if (player.position.y <= LIMITE_CIMA) player.position.y = LIMITE_CIMA;
                     if(framesCounter >= (60/frameSpeed)){
@@ -252,6 +253,7 @@ int main(void) {
                 }
                 if(IsKeyDown(KEY_DOWN)){ //MOVIMENTA O PERSONAGEM PRA BAIXO
                     shootDirection = BAIXO;
+                    direction = direction;
                     player.hitbox.y  += player.speed.y;
                     if (player.position.y >= LIMITE_BAIXO) player.position.y = LIMITE_BAIXO;
                     if(framesCounter >= (60/frameSpeed)){
@@ -267,7 +269,6 @@ int main(void) {
             }
             if (IsKeyDown(KEY_SPACE))
     { 
-                PlaySound(shotSound);
             
         shootRate += 4;
         shootCounter++;
@@ -497,7 +498,6 @@ int main(void) {
     UnloadTexture(coin);
     UnloadTexture(bullet);
     UnloadSound(clickSound);
-    UnloadSound(shotSound);
     UnloadSound(menusound);
     UnloadSound(gamesound);
 

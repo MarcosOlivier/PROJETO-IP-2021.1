@@ -1,4 +1,3 @@
-//os inimigos não morrem com a bala (a colisão não está funcionando) e ainda falta implementar a morte do player ao colidir com o inimigo
 
 #include "raylib.h"
 #include "agiota.h"
@@ -86,7 +85,7 @@ int main(void) {
 
     //CARREGAR TEXTURAS E SONS
     Texture2D button = LoadTexture("texturas\\newbutton.png");
-    Texture2D backgroundTitle = LoadTexture("texturas\\backgroundMenu.png);
+    Texture2D backgroundTitle = LoadTexture("texturas\\backgroundMenu.png");
 
     Sound clickSound = LoadSound("texturas\\resourses_MenuClick.wav");
     Sound shotSound = LoadSound("texturas\\GUNSHOT SOUND EFFECT.wav");
@@ -94,7 +93,7 @@ int main(void) {
     Sound gamesound = LoadSound("texturas\\Grimm_Hollow_Knight__The_Grimm_Troupe_160k.mp3");
 
     Texture2D character = LoadTexture("texturas\\Running.png");
-    Texture2D backgroundGame = LoadTexture("texturas\\backgroundMenu.png");
+    Texture2D backgroundGame = LoadTexture("texturas\\cenario.png");
     Texture2D win = LoadTexture("texturas\\avengers-hulk-agiota.png");
     Texture2D enemy = LoadTexture ("texturas\\NightThief.png");
     Texture2D coin = LoadTexture("texturas\\moedateste.png");
@@ -271,7 +270,9 @@ int main(void) {
                     }
             }
             if (IsKeyDown(KEY_SPACE))
-    {      
+    { 
+                PlaySound(shotSound);
+            
         shootRate += 4;
         shootCounter++;
         for (int i = 0; i < NUM_SHOOTS; i++)
